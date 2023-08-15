@@ -1,21 +1,100 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
+import { useEffect, useState } from "react";
+
+// type Rule = {|
+//   text: string,
+//   count: number
+// |};
 
 const Home: NextPage = () => {
+  const [isCreating, setCreating] = useState(false);
+  const [rules, setRules] = useState<Object[]>([]);
+  console.log('%c⧭', 'color: #917399', 'rules', rules);
+  async function fetchPosts() {
+    try {
+      const response = await fetch('/api/posts');
+      if (response.ok) {
+        const data = await response.json();
+        setRules(data);
+      } else {
+        console.error('Failed to fetch posts:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+  
+  const [newPostText, setNewPostText] = useState('');
+
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+
+    console.log('%c⧭', 'color: #d90000', 'xcv');
+    try {
+      const token = localStorage.getItem('accessToken');
+
+      const response = await fetch('/api/create-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the JWT token in the Authorization header
+        },
+        body: JSON.stringify({ content: newPostText, title: 'not set' }), // You can initialize count as needed
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        // setRules([...rules, newPost]); // Update the rules state with the new post
+        setNewPostText(''); // Clear the input field
+        fetchPosts(); // Fetch the updated data after creating the post
+
+      } else {
+        console.error('Failed to create post:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
+  };
+
+  const handleVote = async (postId: number, voteType: 'downvote' | 'upvote') => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`/api/vote`, { // Update the endpoint and path
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ voteType, postId }), // Send the voteType in the request body
+      });
+
+      if (response.ok) {
+        fetchPosts(); // Fetch the updated data after voting
+      } else {
+        console.error('Failed to vote:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error voting:', error);
+    }
+  };
+
+
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
-        <title>Create Next App</title>
+        <title>OSConstitution</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
         <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
+          Open Source Constitution
         </h1>
 
         <p className="mt-3 text-2xl">
@@ -26,58 +105,67 @@ const Home: NextPage = () => {
         </p>
 
         <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
+          <div
+            className="mt-6 w-full rounded-xl border p-6 text-left flex cursor-pointer hover:outline outline-green-400" onClick={() => setCreating(true)}
           >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
+            {!isCreating ? (
+              <div className="w-full flex justify-around">
+                <div className="flex flex-col justify-around">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </div>
+                <div className="w-full flex flex-col justify-around ml-2.5">
+                  Create a new ruling
+                </div>
+              </div>
+              ) : (
+              <div className="w-full flex flex-col justify-around">
+                <form onSubmit={handleCreatePost}>
+                    <textarea placeholder="Put your rule here..." rows={1} className="w-full border outline-zinc-800 p-2.5"
+                      value={newPostText}
+                      onChange={(e) => setNewPostText(e.target.value)}></textarea>
+                  <div className="flex justify-around self-end mt-2.5">
+                    <button type="submit" className="rounded-xl border py-2.5 px-3.5 outline outline-green-400">Create</button>
+                    <button className="rounded-xl border py-2.5 px-3.5 ml-3.5 outline outline-red-400" onClick={() => setCreating(false)}>Cancel</button>
+                  </div>
+                </form>
+              </div>
+            )}
 
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+          </div>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          {rules.map((rule, index) => (
+            <div key={rule.id}
+              className="mt-6 w-full rounded-xl border p-6 text-left flex"
+            >
+              <div className="flex flex-col justify-around">
+                {rule.upvotes + ' ' + rule.downvotes}
+              </div>
+              <div className="flex flex-col justify-around ml-1.5">
+                <div className="cursor-pointer" onClick={() => {
+                  handleVote(rule.id, 'upvote')
+                }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                  </svg>
+                </div>
+                <div className="cursor-pointer" onClick={() => handleVote(rule.id, 'downvote')}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex flex-col justify-around ml-2.5">
+                {rule.content}
+              </div>
+            </div>
+          ))}
         </div>
       </main>
 
       <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
+        Hi
       </footer>
     </div>
   )
