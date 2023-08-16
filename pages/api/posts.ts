@@ -10,9 +10,10 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const response = await fetch('http://localhost:3000/posts', {
+    const response = await fetch('http://localhost:3000/posts/for-user', {
       headers: {
-        "accepts": "application/json"
+        "accepts": "application/json",
+        'Authorization': req.headers.authorization ?? '',
       }
     }); // Replace with your actual backend API URL
     console.log('%c⧭', 'color: #00e600', 'yoo', response.url);
