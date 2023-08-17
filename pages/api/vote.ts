@@ -1,10 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import API_URL from '../utils'; // Adjust the path as needed
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   console.log('%c⧭', 'color: #007300', req.body);
   try {
     console.log('%c⧭', 'color: #731d6d', 'vzxc');
-    const response = await fetch(`http://localhost:3000/votes`, {
+    const response = await fetch(`${API_URL}/votes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

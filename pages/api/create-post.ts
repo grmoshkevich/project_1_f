@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import API_URL from '../utils'; // Adjust the path as needed
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     console.log('%c⧭', 'color: #f200e2', {
@@ -6,7 +7,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         'Authorization': req.headers.authorization ?? '',
       });
     try {
-    const response = await fetch('http://localhost:3000/posts', {
+    const response = await fetch(`${API_URL}/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

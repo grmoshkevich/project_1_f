@@ -1,12 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
+import API_URL from '../utils'; // Adjust the path as needed
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    const response = await fetch('http://localhost:3000/posts/for-user', {
+    const response = await fetch(`${API_URL}/posts/for-user`, {
       headers: {
         "accepts": "application/json",
         'Authorization': req.headers.authorization ?? '',
