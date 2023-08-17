@@ -1,16 +1,23 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from "react";
+import { FormEvent } from 'react'; // Import the FormEvent type
 
-// type Rule = {|
-//   text: string,
-//   count: number
-// |};
+type Rule = {
+  id: number;
+  upvotes: number;
+  downvotes: number;
+  content: string;
+  votes: {
+    voteType: 'upvote' | 'downvote';
+    // Other properties related to votes if needed
+  }[];
+};
 
 const Home: NextPage = () => {
   const [isCreating, setCreating] = useState(false);
   console.log('%c⧭', 'color: #e57373', 'isCreating', isCreating);
-  const [rules, setRules] = useState<Object[]>([]);
+  const [rules, setRules] = useState<Rule[]>([]);
   console.log('%c⧭', 'color: #917399', 'rules', rules);
 
   async function fetchPosts() {
@@ -40,7 +47,7 @@ const Home: NextPage = () => {
   
   const [newPostText, setNewPostText] = useState('');
 
-  const handleCreatePost = async (e) => {
+  const handleCreatePost = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     console.log('%c⧭', 'color: #d90000', 'xcv');
