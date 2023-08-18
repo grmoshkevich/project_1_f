@@ -4,6 +4,7 @@ import API_URL from '../utils'; // Adjust the path as needed
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     console.log('%c⧭', 'color: #733d00', 'baop', req.body);
+    console.log('%c⧭', 'color: #00e600', 'api url', API_URL);
     const response = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: {

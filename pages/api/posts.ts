@@ -6,6 +6,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log('%c⧭', 'color: #ff0000', 'baba', req.headers.authorization);
   try {
     const response = await fetch(`${API_URL}/posts/for-user`, {
       headers: {
