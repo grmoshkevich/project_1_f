@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import API_URL from '../utils'; // Adjust the path as needed
+import API_URL from '../../utils/constants'; // Adjust the path as needed
 
 export default async function handler(
   req: NextApiRequest,
