@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { FormEvent } from 'react'; // Import the FormEvent type
 
@@ -8,7 +9,7 @@ type Rule = {
   upvotes: number;
   downvotes: number;
   content: string;
-  votes: {
+  votes?: {
     voteType: 'upvote' | 'downvote';
     // Other properties related to votes if needed
   }[];
@@ -16,9 +17,14 @@ type Rule = {
 
 const Home: NextPage = () => {
   const [isCreating, setCreating] = useState(false);
-  console.log('%c⧭', 'color: #e57373', 'isCreating', isCreating);
   const [rules, setRules] = useState<Rule[]>([]);
-  console.log('%c⧭', 'color: #917399', 'rules', rules);
+
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setAccessToken(token);
+  }, []);   
+  const isAuthenticated = Boolean(accessToken);
 
   async function fetchPosts() {
     try {
@@ -26,7 +32,7 @@ const Home: NextPage = () => {
 
       const response = await fetch('/api/posts', {
         headers: {
-          'Authorization': `Bearer ${token}`, // Include the JWT token in the Authorization header
+          'Authorization': Boolean(token) ? `Bearer ${token}` : '', // Include the JWT token in the Authorization header
         }
       });
       if (response.ok) {
@@ -52,13 +58,13 @@ const Home: NextPage = () => {
 
     console.log('%c⧭', 'color: #d90000', 'xcv');
     try {
-      const token = localStorage.getItem('accessToken');
+      if (!isAuthenticated) throw Error('Unautharized')
 
       const response = await fetch('/api/create-post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the JWT token in the Authorization header
+          'Authorization': `Bearer ${accessToken}`, // Include the JWT token in the Authorization header
         },
         body: JSON.stringify({ content: newPostText, title: 'not set' }), // You can initialize count as needed
       });
@@ -79,6 +85,7 @@ const Home: NextPage = () => {
 
   const handleVote = async (postId: number, voteType: 'downvote' | 'upvote') => {
     try {
+      if (!isAuthenticated) throw Error('Unautharized')
       const token = localStorage.getItem('accessToken');
       const response = await fetch(`/api/vote`, { // Update the endpoint and path
         method: 'POST',
@@ -99,8 +106,6 @@ const Home: NextPage = () => {
     }
   };
 
-
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-4 md:py-20">
       <Head>
@@ -117,9 +122,15 @@ const Home: NextPage = () => {
           Curated by the community in&nbsp;real&nbsp;time
         </p>
 
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
+        <div className="mt-12 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
+          {!isAuthenticated ? (
+              <div className="flex gap-4 max-w-4xl flex-wrap items-center justify-around sm:w-full">
+                <Link href="/create-user" className="flex-grow rounded-xl border p-4 md:p-6 outline outline-blue-400">Sign Up</Link>
+                <Link href="/login" className="flex-grow rounded-xl border p-4 md:p-6 outline outline-blue-400">Log In</Link>
+              </div>
+            ) : (
           <div
-            className="mt-6 w-full rounded-xl border p-4 md:p-6 text-left flex cursor-pointer hover:outline outline-green-400" onClick={() => setCreating(true)}
+            className="w-full rounded-xl border p-4 md:p-6 text-left flex cursor-pointer hover:outline outline-green-400" onClick={() => setCreating(true)}
           >
             {!isCreating ? (
               <div className="w-full flex justify-around">
@@ -146,7 +157,7 @@ const Home: NextPage = () => {
               </div>
             )}
 
-          </div>
+          </div>)}
 
           {rules.map((rule, index) => (
             <div key={rule.id}
@@ -159,12 +170,12 @@ const Home: NextPage = () => {
                 <div className="cursor-pointer" onClick={() => {
                   handleVote(rule.id, 'upvote')
                 }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke={rule.votes[0]?.voteType === 'upvote' ? "green" : "currentColor"} className="w-6 h-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke={rule.votes?.[0]?.voteType === 'upvote' ? "green" : "currentColor"} className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
                   </svg>
                 </div>
                 <div className="cursor-pointer" onClick={() => handleVote(rule.id, 'downvote')}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke={rule.votes[0]?.voteType === 'downvote' ? "red" : "currentColor"} className="w-6 h-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke={rule.votes?.[0]?.voteType === 'downvote' ? "red" : "currentColor"} className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 </div>

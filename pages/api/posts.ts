@@ -6,14 +6,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log('%c⧭', 'color: #ff0000', 'baba', req.headers.authorization);
   try {
-    const response = await fetch(`${API_URL}/posts/for-user`, {
+    const accessToken = req.headers.authorization;
+    console.log('%c⧭', 'color: #00bf00', 'accessToken', accessToken);
+    console.log('%c⧭', 'color: #0088cc', `${API_URL}/posts/${Boolean(accessToken) ? 'for-user' : 'public'}`);
+    const response = await fetch(`${API_URL}/posts/${Boolean(accessToken) ? 'for-user' : 'public'}`, {
       headers: {
         "accepts": "application/json",
         'Authorization': req.headers.authorization ?? '',
       }
-    }); // Replace with your actual backend API URL
+    });
+
     console.log('%c⧭', 'color: #00e600', 'yoo', response.url);
     const data = await response.json();
     console.log('%c⧭', 'color: #ff0000', data);
