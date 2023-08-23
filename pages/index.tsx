@@ -119,7 +119,10 @@ const Home: NextPage = () => {
         </h1>
 
         <p className="mt-3 text-2xl">
-          Curated by the community in&nbsp;real&nbsp;time
+          Empowering collective wisdom.<br/>Share and upvote suggestions on&nbsp;acceptable&nbsp;behavior.
+        </p>
+        <p className="mt-3 text-2xl">
+          Shape&nbsp;our&nbsp;shared&nbsp;understanding.
         </p>
 
         <div className="mt-12 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
@@ -188,8 +191,8 @@ const Home: NextPage = () => {
         </div>
       </main>
 
-      <footer className="flex h-12 md:h-24 w-full items-center justify-center border-t">
-        Repository of current opinions
+      <footer className="flex h-12 md:h-24 w-full text-center items-center justify-center border-t">
+        Repository of current opinions,<br/>curated by the community in&nbsp;real&nbsp;time
       </footer>
     </div>
   )
